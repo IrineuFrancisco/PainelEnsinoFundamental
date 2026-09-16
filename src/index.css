@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=Roboto:wght@500;700;900&display=swap');
+
+@font-face {
+  font-family: 'MomoTrust';
+  src: url('/fonts/MomoTrustDisplay-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-momo: 'MomoTrust', 'Outfit', sans-serif;
+  --font-main: 'Outfit', 'Roboto', sans-serif;
+
+  --color-outer-border: #BAE6FD;
+  --color-canvas-bg: #FAF8E6;
+  --color-text-dark: #000000;
+  
+  --color-pill-bg: #DDF2FF;
+  --sesi-red: #E30613;
+  
+  --card-pink: #FFDDF4;
+  --card-green: #DCFCE7;
+  --card-yellow: #FEF08A;
+  --card-blue: #C7E8FE;
+  --card-remind: #FCE7F3;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+html, body, #root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: var(--font-main);
+  background-color: var(--color-outer-border);
+  color: var(--color-text-dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Base frame wrapper representing the Smart TV bezel */
+.tv-frame-container {
+  width: 100vw;
+  height: 100vh;
+  padding: 16px;
+  background-color: var(--color-outer-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tv-canvas {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-canvas-bg);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.font-momo-title {
+  font-family: var(--font-momo);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}

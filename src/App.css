@@ -1,0 +1,312 @@
+/* App.css - Faithful Reproduction of Tela principal.png */
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+/* SESI Logo Block matching reference image */
+.sesi-logo-block {
+  background-color: var(--sesi-red);
+  padding: 10px 28px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.sesi-logo-text {
+  color: white;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  font-size: 2.8rem;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+/* White cutouts stripes on SESI logo sides */
+.sesi-logo-block::before,
+.sesi-logo-block::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    white,
+    white 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+.sesi-logo-block::before { left: 4px; }
+.sesi-logo-block::after { right: 4px; }
+
+/* Right Pill Capsule for Date and Time */
+.date-time-pill {
+  background-color: var(--color-pill-bg);
+  border-radius: 50px;
+  padding: 14px 36px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.date-pill-text {
+  font-family: var(--font-momo);
+  font-weight: 900;
+  font-size: 1.4rem;
+  color: #000000;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.time-pill-text {
+  font-family: var(--font-momo);
+  font-weight: 900;
+  font-size: 1.8rem;
+  color: #000000;
+}
+
+/* Discrete Header Action Buttons */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 12px;
+}
+
+.action-btn-circle {
+  border: none;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.action-btn-circle:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* Three Column Layout Grid */
+.principal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 0.9fr;
+  gap: 28px;
+  flex: 1;
+  height: calc(100% - 90px);
+  overflow: hidden;
+}
+
+.column-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  height: 100%;
+}
+
+.section-title {
+  font-family: var(--font-momo);
+  font-weight: 900;
+  font-size: 1.35rem;
+  color: #000000;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+/* Column 1: Aulas Cards */
+.aulas-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.aula-card {
+  border-radius: 24px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aula-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+}
+
+.aula-card.pink { background-color: var(--card-pink); }
+.aula-card.green { background-color: var(--card-green); }
+.aula-card.yellow { background-color: var(--card-yellow); }
+
+.aula-icon-wrapper {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.aula-card-text {
+  font-family: var(--font-momo);
+  font-weight: 900;
+  font-size: 1.25rem;
+  color: #000000;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Column 2: Cardapio Single Large Card */
+.cardapio-card-large {
+  background-color: var(--card-blue);
+  border-radius: 28px;
+  padding: 24px 28px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  overflow-y: auto;
+}
+
+.cardapio-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cardapio-sub-title {
+  font-family: var(--font-momo);
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: #000000;
+  text-transform: uppercase;
+}
+
+.cardapio-bullet-list {
+  list-style: none;
+  padding-left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardapio-bullet-list li {
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #000000;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Column 3: Lembrete & Mascote */
+.lembrete-card {
+  background-color: var(--card-remind);
+  border-radius: 24px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.lembrete-text {
+  font-family: var(--font-momo);
+  font-weight: 900;
+  font-size: 1.25rem;
+  color: #000000;
+  text-transform: uppercase;
+  line-height: 1.35;
+}
+
+.mascote-container-bottom {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  flex: 1;
+  padding-bottom: 0;
+}
+
+.mascote-img-full {
+  max-height: 270px;
+  object-fit: contain;
+}
+
+/* Fullscreen Event Overlay Alert matching Alerta almoço.png, etc */
+.alert-fullscreen-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-outer-border);
+  padding: 16px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-canvas {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-canvas-bg);
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 32px;
+  position: relative;
+}
+
+.alert-center-circle {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.alert-circle-badge {
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background-color: #DCFCE7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  padding: 20px;
+}
+
+.alert-circle-img {
+  max-height: 180px;
+  object-fit: contain;
+}
+
+.alert-circle-title {
+  font-family: var(--font-momo);
+  font-weight: 900;
+  font-size: 1.8rem;
+  color: #000000;
+  text-transform: uppercase;
+}

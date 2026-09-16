@@ -1,0 +1,269 @@
+{
+  "versao": "1.0.0",
+  "ultimaAtualizacao": "2026-09-16T14:45:00.000Z",
+  "turmaPadrao": "1_2_ano",
+  "avisos": [
+    {
+      "id": "av-1",
+      "titulo": "Bem-vindos ao SESI Fundamental!",
+      "mensagem": "Um dia repleto de aprendizado, descobertas e alegria para todos os nossos alunos!",
+      "categoria": "Informativo",
+      "cor": "#20B2AA",
+      "duracao": 8,
+      "icone": "sparkles",
+      "ativo": true
+    },
+    {
+      "id": "av-2",
+      "titulo": "Hora da Higiene e Lavagem das Mãos",
+      "mensagem": "Lembre-se de lavar bem as mãos com água e sabão antes do lanche e do almoço!",
+      "categoria": "Higiene & Saúde",
+      "cor": "#4CAF50",
+      "duracao": 7,
+      "icone": "heart-pulse",
+      "ativo": true
+    },
+    {
+      "id": "av-3",
+      "titulo": "Recado da Inspetoria",
+      "mensagem": "No pátio, brinque com segurança e ajude os colegas de turmas menores.",
+      "categoria": "Convivência",
+      "cor": "#FF9800",
+      "duracao": 8,
+      "icone": "shield-check",
+      "ativo": true
+    },
+    {
+      "id": "av-4",
+      "titulo": "Devolução de Livros na Biblioteca",
+      "mensagem": "Atenção 3º, 4º e 5º ano: Quinta-feira é dia de renovação de livros literários.",
+      "categoria": "Pedagógico",
+      "cor": "#8A2BE2",
+      "duracao": 8,
+      "icone": "book-open",
+      "ativo": true
+    }
+  ],
+  "cardapio": {
+    "segunda": {
+      "cafe_manha": {
+        "prato": "Leite com Cacaueira & Pão Integral com Requeijão",
+        "fruta": "Banana Prata",
+        "suco": "Suco de Laranja Natural"
+      },
+      "almoco": {
+        "prato": "Arroz Soltinho, Feijão Carioca, Iscas de Frango Grelhado & Purê de Batata",
+        "salada": "Salada de Alface Crocante com Cenoura Ralada",
+        "sobremesa": "Maçã Fuji"
+      },
+      "cafe_tarde": {
+        "prato": "Bolo Caseiro de Cenoura com Cobertura & Leite",
+        "fruta": "Melancia em Cubos"
+      }
+    },
+    "terca": {
+      "cafe_manha": {
+        "prato": "Vitamina de Morango & Torrada com Geleia",
+        "fruta": "Mamão",
+        "suco": "Suco de Uva Integral"
+      },
+      "almoco": {
+        "prato": "Arroz Integral, Feijão Preto, Carne Moída com Vagem & Farofa de Milho",
+        "salada": "Tomate fatiado com Pepino",
+        "sobremesa": "Gelatina de Morango"
+      },
+      "cafe_tarde": {
+        "prato": "Pão de Queijo Assado & Suco Natural",
+        "fruta": "Uva sem semente"
+      }
+    },
+    "quarta": {
+      "cafe_manha": {
+        "prato": "Achocolatado Quente & Broinha de Milho",
+        "fruta": "Pera",
+        "suco": "Suco de Goiaba"
+      },
+      "almoco": {
+        "prato": "Macarrão Penne ao Molho Bolonhesa ou Molho Branco & Iscas de Carne",
+        "salada": "Beterraba Cozida com Cheiro Verde",
+        "sobremesa": "Salada de Frutas"
+      },
+      "cafe_tarde": {
+        "prato": "Sanduíche Natural de Frango com Requeijão",
+        "fruta": "Banana"
+      }
+    },
+    "quinta": {
+      "cafe_manha": {
+        "prato": "Leite com Cereais & Pão Francês com Manteiga",
+        "fruta": "Melão",
+        "suco": "Suco de Maracujá"
+      },
+      "almoco": {
+        "prato": "Arroz com Cheiro Verde, Feijão Carioca, Strogonoff de Frango & Batata Palha Assada",
+        "salada": "Salada de Repolho Roxo e Brócolis",
+        "sobremesa": "Banana Assada com Canela"
+      },
+      "cafe_tarde": {
+        "prato": "Bisnaguinha Integral com Queijo & Suco",
+        "fruta": "Maçã Verde"
+      }
+    },
+    "sexta": {
+      "cafe_manha": {
+        "prato": "Iogurte Natural com Granola & Pão de Batata",
+        "fruta": "Tangerina",
+        "suco": "Suco de Abacaxi com Hortelã"
+      },
+      "almoco": {
+        "prato": "Feijoada Leve SESI (com Lombo e Paio), Arroz Branco, Couve Refogada & Laranja",
+        "salada": "Vinaigrette Suave",
+        "sobremesa": "Docinho de Leite em Pó"
+      },
+      "cafe_tarde": {
+        "prato": "Pipoca Salgada Assada & Suco de Manga",
+        "fruta": "Melancia"
+      }
+    }
+  },
+  "horarios": [
+    {
+      "id": "h-1",
+      "evento": "Entrada dos Alunos",
+      "inicio": "07:00",
+      "fim": "07:15",
+      "tipo": "entrada",
+      "descricao": "Recepção com música alegre no portão principal",
+      "som": "/images/Alerta café da manhã.png"
+    },
+    {
+      "id": "h-2",
+      "evento": "Café da Manhã",
+      "inicio": "07:15",
+      "fim": "07:45",
+      "tipo": "refeicao",
+      "descricao": "Refeição matinal no refeitório das crianças",
+      "som": "/images/Alerta café da manhã.png"
+    },
+    {
+      "id": "h-3",
+      "evento": "1ª Aula / Roda de Conversa",
+      "inicio": "07:45",
+      "fim": "08:35",
+      "tipo": "aula",
+      "descricao": "Língua Portuguesa / Alfabetização Visual",
+      "som": "/images/Alerta segunda aula.png"
+    },
+    {
+      "id": "h-4",
+      "evento": "2ª Aula / Atividade Guiada",
+      "inicio": "08:35",
+      "fim": "09:25",
+      "tipo": "aula",
+      "descricao": "Matemática Divertida & Jogos Lógicos",
+      "som": "/images/Alerta segunda aula.png"
+    },
+    {
+      "id": "h-5",
+      "evento": "Recreio Matutino & Lanche",
+      "inicio": "09:25",
+      "fim": "09:45",
+      "tipo": "recreio",
+      "descricao": "Brincadeiras dirigidas e pátio coberto",
+      "som": "/images/Alerta café da manhã.png"
+    },
+    {
+      "id": "h-6",
+      "evento": "3ª Aula / Laboratório & Projetos",
+      "inicio": "09:45",
+      "fim": "10:35",
+      "tipo": "aula",
+      "descricao": "Ciências da Natureza / Projeto Preferido",
+      "som": "/images/Alerta segunda aula.png"
+    },
+    {
+      "id": "h-7",
+      "evento": "4ª Aula / Hora da Tarefa",
+      "inicio": "10:35",
+      "fim": "11:25",
+      "tipo": "tarefa",
+      "descricao": "Organização da mochila e fixação de tarefas",
+      "som": "/images/Alerta segunda aula.png"
+    },
+    {
+      "id": "h-8",
+      "evento": "Horário de Almoço",
+      "inicio": "11:25",
+      "fim": "12:30",
+      "tipo": "refeicao",
+      "descricao": "Almoço nutritivo no Refeitório Central",
+      "som": "/images/Alerta almoço.png"
+    },
+    {
+      "id": "h-9",
+      "evento": "5ª Aula / Arte & Educação Física",
+      "inicio": "12:30",
+      "fim": "13:20",
+      "tipo": "aula",
+      "descricao": "Expressão Corporal e Artes Visuais",
+      "som": "/images/Alerta segunda aula.png"
+    },
+    {
+      "id": "h-10",
+      "evento": "Café da Tarde / Lanche",
+      "inicio": "15:00",
+      "fim": "15:20",
+      "tipo": "refeicao",
+      "descricao": "Lanche da tarde revigorante",
+      "som": "/images/Alerta café da tarde.png"
+    },
+    {
+      "id": "h-11",
+      "evento": "Saída dos Alunos",
+      "inicio": "17:00",
+      "fim": "17:15",
+      "tipo": "saida",
+      "descricao": "Embarque com responsabilidade e sinal sonoro",
+      "som": "/images/Alerta saida.png"
+    }
+  ],
+  "gradeBanheiro": [
+    { "turma": "1º Ano A", "horario": "08:15 - 08:30", "inspetor": "Tia Cláudia" },
+    { "turma": "1º Ano B", "horario": "08:30 - 08:45", "inspetor": "Tia Maria" },
+    { "turma": "2º Ano A", "horario": "09:00 - 09:15", "inspetor": "Tio Roberto" },
+    { "turma": "3º Ano A", "horario": "10:00 - 10:15", "inspetor": "Tia Cláudia" },
+    { "turma": "4º/5º Ano", "horario": "10:45 - 11:00", "inspetor": "Tio Carlos" }
+  ],
+  "alfabetizacao": {
+    "familiaDestaque": "Família do B: BA - BE - BI - BO - BU - BÃO",
+    "palavras": ["BOLA", "BONECA", "BALÃO", "BOLO", "BATATA"],
+    "dica": "Junte a letrinha B com a vogal para formar o som!"
+  },
+  "projetoSemana": {
+    "titulo": "Projeto Hortinha Escolar",
+    "subtitulo": "Descobrindo a Natureza no 2º Ano",
+    "descricao": "Esta semana estamos aprendendo sobre sementes, irrigação e alimentação saudável!",
+    "progresso": "Etapa 3: Regar as mudinhas de alface e hortelã"
+  },
+  "noticiasJoca": [
+    {
+      "fonte": "Jornal JOCA",
+      "titulo": "Robótica Sustentável: Alunos criam brinquedos com materiais reciclados",
+      "resumo": "Estudantes usaram tampinhas e papelão para construir robôs articulados incríveis!",
+      "data": "16 Set"
+    },
+    {
+      "fonte": "Revista CHC",
+      "titulo": "Por que o céu muda de cor no pôr do sol?",
+      "resumo": "Descubra a ciência por trás dos tons alaranjados e rosados que vemos ao fim da tarde.",
+      "data": "15 Set"
+    }
+  ],
+  "lembreteMaterial": {
+    "segunda": "Caderno de Português + Estojo Completo",
+    "terca": "Livro de Matemática + Material Dourado",
+    "quarta": "Avental de Arte + Tinta Guache",
+    "quinta": "Uniforme de Educação Física + Garrafinha d'Água",
+    "sexta": "Livro de História/Geografia + Gibis para Leitura"
+  }
+}
