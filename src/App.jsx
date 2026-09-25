@@ -2,12 +2,11 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import ModalSenhaAdmin from './components/ModalSenhaAdmin';
 import AdminAvisos from './components/AdminAvisos';
-import { AbcIcon, ScienceIcon, NumbersIcon } from './components/SubjectIcons';
 
 import { syncTimeWithServer, getSyncedDate, formatDateExtenso, formatTimeBR, getDiaSemanaChave } from './utils/timeSync';
 import { loadPanelData, playChimeWithFadeIn, playAlertAudio, stopAlertAudio } from './utils/mediaHelpers';
-import { fetchCardapioSupabase } from './utils/supabaseClient';
-import { Volume2, Settings, X, Bell, RefreshCw } from 'lucide-react';
+import { fetchCardapioSupabase, fetchAvisosSupabase, subscribeToSupabaseChanges } from './utils/supabaseClient';
+import { Volume2, Settings, X, Bell, RefreshCw, BookOpen } from 'lucide-react';
 
 import './App.css';
 
@@ -86,6 +85,18 @@ export function getAlertDetails(keyOrTitle, customLabel = null, displayTime = nu
     };
   }
 
+  if (str.includes('saida_quarta') || str.includes('quarta') || displayTime === '11:30') {
+    return {
+      key: 'saida_quarta',
+      titulo: 'Saída Quarta-Feira',
+      label: 'HORA DA SAÍDA – QUARTA-FEIRA',
+      displayTime: displayTime || '11:30',
+      audio: '/sons/tchau.mp3',
+      cropImg: '/images/crop_saida.png',
+      fullImg: '/images/Alerta saida.png'
+    };
+  }
+
   return {
     key: 'custom',
     titulo: keyOrTitle || 'Alerta',
@@ -103,29 +114,87 @@ export default function App() {
   const [panelData, setPanelData] = useState(null);
   const [selectedGradeGroup, setSelectedGradeGroup] = useState('1_2_ano');
 
-  // Modals & Alerts
+  // Modals, Alerts & Avisos Carousel
   const [isModalSenhaOpen, setIsModalSenhaOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isAlertMenuOpen, setIsAlertMenuOpen] = useState(false);
   const [currentAlert, setCurrentAlert] = useState(null);
+  const [avisoIndex, setAvisoIndex] = useState(0);
+  const [currentView, setCurrentView] = useState('principal'); // 'principal' | 'leitura'
+  const [periodoOverride, setPeriodoOverride] = useState(null); // null (automático por horário) | 'manha' | 'tarde'
 
-  // 1. Load panel data (Offline First via /avisos.json) + Supabase Cardápio Sync
+  // 1. Load panel data (Offline First via /avisos.json) + Supabase Sync (Cardápio & Avisos)
   useEffect(() => {
     async function fetchData() {
       const res = await loadPanelData();
       if (res.data) {
-        setPanelData(res.data);
+        let current = res.data;
+        setPanelData(current);
+
         // Sincronização inicial do Cardápio via Supabase
-        const supRes = await fetchCardapioSupabase(res.data);
-        if (supRes.success && supRes.data) {
-          setPanelData((prev) => ({
-            ...prev,
-            cardapio: supRes.data
-          }));
+        const supCardapio = await fetchCardapioSupabase(current);
+        if (supCardapio.success && supCardapio.data) {
+          current = { ...current, cardapio: supCardapio.data };
         }
+
+        // Sincronização inicial dos Avisos via Supabase
+        const supAvisos = await fetchAvisosSupabase(current);
+        if (supAvisos.success && supAvisos.data) {
+          current = { ...current, avisos: supAvisos.data };
+        }
+
+        setPanelData(current);
       }
     }
     fetchData();
+  }, []);
+
+  // Assinatura em tempo real (Supabase Realtime)
+  useEffect(() => {
+    if (!panelData) return;
+
+    const unsubscribe = subscribeToSupabaseChanges({
+      onCardapioChange: async () => {
+        console.log('[Realtime] Notificação de alteração no cardápio recebida!');
+        const supRes = await fetchCardapioSupabase(panelData);
+        if (supRes.success && supRes.data) {
+          setPanelData((prev) => ({ ...prev, cardapio: supRes.data }));
+        }
+      },
+      onAvisosChange: async () => {
+        console.log('[Realtime] Notificação de alteração em avisos recebida!');
+        const supAvisos = await fetchAvisosSupabase(panelData);
+        if (supAvisos.success && supAvisos.data) {
+          setPanelData((prev) => ({ ...prev, avisos: supAvisos.data }));
+        }
+      }
+    });
+
+    return () => {
+      if (typeof unsubscribe === 'function') unsubscribe();
+    };
+  }, [panelData]);
+
+  // Rotação dos avisos ativos a cada 12 segundos no card Lembrete
+  useEffect(() => {
+    const activeList = (panelData?.avisos || []).filter((a) => a.ativo !== false);
+    if (activeList.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setAvisoIndex((prev) => (prev + 1) % activeList.length);
+    }, 12000);
+
+    return () => clearInterval(interval);
+  }, [panelData?.avisos]);
+
+  // Alternância automática de exibição a cada 30 minutos (Painel Inicial <-> Treino de Leitura)
+  useEffect(() => {
+    const ROTATION_INTERVAL_MS = 30 * 1000; // 30 segundos
+    const timer = setInterval(() => {
+      setCurrentView((prev) => (prev === 'principal' ? 'leitura' : 'principal'));
+    }, ROTATION_INTERVAL_MS);
+
+    return () => clearInterval(timer);
   }, []);
 
   // 2. High-precision HTTP Time Sync (NovoPainelSesi Architecture)
@@ -224,6 +293,7 @@ export default function App() {
         }
 
         let matchedAlert = null;
+        const isWednesday = now.getDay() === 3;
 
         if (hm === '07:00') {
           matchedAlert = getAlertDetails('entrada', 'BOM DIA!', '7:00');
@@ -233,9 +303,14 @@ export default function App() {
           matchedAlert = getAlertDetails('segunda_aula', 'FIM DA 2º AULA', '9:00');
         } else if (hm === '10:40') {
           matchedAlert = getAlertDetails('almoco', 'ALMOÇO', '10:40');
-        } else if (hm === '14:00') {
+        } else if (hm === '11:30' && isWednesday) {
+          // Quarta-feira: saída antecipada às 11:30
+          matchedAlert = getAlertDetails('saida_quarta', 'HORA DA SAÍDA', '11:30');
+        } else if (hm === '14:00' && !isWednesday) {
+          // Não dispara café da tarde em quarta-feira (saída às 11:30)
           matchedAlert = getAlertDetails('cafe_tarde', 'CAFÉ DA TARDE', '14:00');
-        } else if (hm === '16:00') {
+        } else if (hm === '16:00' && !isWednesday) {
+          // Não dispara saída normal em quarta-feira (saída às 11:30)
           matchedAlert = getAlertDetails('saida', 'HORA DA SAÍDA', '16:00');
         } else if (panelData?.horarios) {
           const match = panelData.horarios.find((h) => h.inicio === hm);
@@ -280,6 +355,26 @@ export default function App() {
 
   const diaChave = getDiaSemanaChave(syncedDate);
   const cardapioHoje = panelData.cardapio?.[diaChave] || panelData.cardapio?.['segunda'] || {};
+  const activeAvisos = (panelData.avisos || []).filter((a) => a.ativo !== false);
+  const currentAviso = activeAvisos.length > 0 ? activeAvisos[avisoIndex % activeAvisos.length] : null;
+
+  // Determina automaticamente o período (Manhã até 11:59 / Tarde a partir das 12:00)
+  const isTardeAuto = syncedDate.getHours() >= 12;
+  const isTarde = periodoOverride !== null ? periodoOverride === 'tarde' : isTardeAuto;
+
+  const aulasManha = panelData?.aulas?.manha || [
+    { disciplina: 'PORTUGUÊS', horario: '7:00 ÀS 7:50' },
+    { disciplina: 'CIÊNCIAS', horario: '8:10 ÀS 9:00' },
+    { disciplina: 'MATEMÁTICA', horario: '9:00 ÀS 9:50' }
+  ];
+
+  const aulasTarde = panelData?.aulas?.tarde || [
+    { disciplina: 'PORTUGUÊS', horario: '13:00 ÀS 13:50' },
+    { disciplina: 'CIÊNCIAS', horario: '14:20 ÀS 15:10' },
+    { disciplina: 'MATEMÁTICA', horario: '15:10 ÀS 16:00' }
+  ];
+
+  const aulasExibidas = isTarde ? aulasTarde : aulasManha;
 
   return (
     <div className="tv-frame-container">
@@ -290,17 +385,25 @@ export default function App() {
             <img src="/images/Sesi-SP.jpg" alt="Logo SESI" className="sesi-logo-img" />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+          <div className="header-pill-container">
             <div className="date-time-pill">
               <span className="date-pill-text">
                 {formatDateExtenso(syncedDate)}
               </span>
               <span className="time-pill-text">
-                {String(syncedDate.getHours()).padStart(2, '0')}:{String(syncedDate.getMinutes()).padStart(2, '0')}
+                {`${syncedDate.getHours()}:${String(syncedDate.getMinutes()).padStart(2, '0')}`}
               </span>
             </div>
 
             <div className="header-actions">
+              <button
+                className="action-btn-circle"
+                title={currentView === 'principal' ? 'Mudar para Treino de Leitura (Alternância de 30min)' : 'Voltar para Painel Principal'}
+                onClick={() => setCurrentView((prev) => (prev === 'principal' ? 'leitura' : 'principal'))}
+                style={currentView === 'leitura' ? { background: '#EBD9FF', color: '#6B21A8' } : {}}
+              >
+                <BookOpen size={20} />
+              </button>
               <button
                 className="action-btn-circle"
                 title="Testar Alertas de Horários"
@@ -320,7 +423,18 @@ export default function App() {
             {/* Floating Quick Alert Menu */}
             {isAlertMenuOpen && (
               <div className="alert-dropdown-menu">
-                <div className="dropdown-title">Testar Alertas Programados</div>
+                <div className="dropdown-title">Ações e Telas</div>
+                <button 
+                  onClick={() => {
+                    setCurrentView((prev) => (prev === 'principal' ? 'leitura' : 'principal'));
+                    setIsAlertMenuOpen(false);
+                  }}
+                  style={{ background: '#F3E8FF', color: '#6B21A8', fontWeight: 800 }}
+                >
+                  📖 {currentView === 'principal' ? 'Exibir Treino de Leitura' : 'Exibir Painel Principal'}
+                </button>
+
+                <div className="dropdown-title" style={{ marginTop: 4 }}>Testar Alertas Programados</div>
                 <button onClick={() => triggerAlert('entrada', '7:00')}>
                   ☀️ 07:00 - Entrada (bom dia.mp3)
                 </button>
@@ -339,13 +453,20 @@ export default function App() {
                 <button onClick={() => triggerAlert('saida', '16:00')}>
                   🚌 16:00 - Hora da Saída (tchau.mp3)
                 </button>
+                <button
+                  onClick={() => triggerAlert('saida_quarta', '11:30')}
+                  style={{ background: '#FEF3C7', color: '#92400E', fontWeight: 800 }}
+                >
+                  📅 11:30 - Saída Quarta-Feira (tchau.mp3)
+                </button>
               </div>
             )}
           </div>
         </header>
 
-        {/* Main 3 Column Grid matching Tela principal.png */}
-        <main className="principal-grid">
+        {/* Main View: Alternates every 30 minutes between Principal and Treino de Leitura */}
+        {currentView === 'principal' ? (
+          <main className="principal-grid">
           {/* Column 1: AULAS DA MANHÃ: */}
           <section className="column-section">
             <h2 className="section-title">AULAS DA MANHÃ:</h2>
@@ -353,7 +474,11 @@ export default function App() {
               {/* Pink Card - Português */}
               <div className="aula-card pink">
                 <div className="aula-icon-wrapper">
-                  <AbcIcon />
+                  <img
+                    src="/images/imagem-português.png"
+                    alt="Português ABC"
+                    className="aula-icon-img"
+                  />
                 </div>
                 <div className="aula-card-text">
                   PORTUGUÊS 7:00 ÀS 7:50
@@ -363,7 +488,11 @@ export default function App() {
               {/* Green Card - Ciências */}
               <div className="aula-card green">
                 <div className="aula-icon-wrapper">
-                  <ScienceIcon />
+                  <img
+                    src="/images/ciencias (2).png"
+                    alt="Ciências"
+                    className="aula-icon-img"
+                  />
                 </div>
                 <div className="aula-card-text">
                   CIÊNCIAS 8:10 ÀS 9:00
@@ -373,7 +502,11 @@ export default function App() {
               {/* Yellow Card - Matemática */}
               <div className="aula-card yellow">
                 <div className="aula-icon-wrapper">
-                  <NumbersIcon />
+                  <img
+                    src="/images/imagem-matemática.png"
+                    alt="Matemática"
+                    className="aula-icon-img"
+                  />
                 </div>
                 <div className="aula-card-text">
                   MATEMÁTICA 9:00 ÀS 9:50
@@ -432,11 +565,29 @@ export default function App() {
 
           {/* Column 3: LEMBRETE: & Mascote */}
           <section className="column-section">
-            <h2 className="section-title">LEMBRETE:</h2>
+            <h2 className="section-title">
+              {currentAviso ? 'AVISO / LEMBRETE:' : 'LEMBRETE:'}
+            </h2>
 
-            <div className="lembrete-card">
+            <div 
+              className="lembrete-card"
+              style={currentAviso?.cor ? { borderLeft: `6px solid ${currentAviso.cor}`, transition: 'all 0.4s ease' } : {}}
+            >
               <div className="lembrete-text">
-                PEGAR OS MATERIAS AO CHEGAR!!
+                {currentAviso ? (
+                  <>
+                    <div style={{ fontSize: '0.82rem', color: currentAviso.cor || '#0284C7', marginBottom: '6px', fontWeight: 900 }}>
+                      {currentAviso.titulo}
+                    </div>
+                    <div style={{ fontSize: '1.02rem', lineHeight: 1.35 }}>
+                      {currentAviso.mensagem}
+                    </div>
+                  </>
+                ) : (
+                  panelData?.lembreteMaterial?.[diaChave]
+                    ? `LEMBRETE: ${panelData.lembreteMaterial[diaChave].toUpperCase()}`
+                    : 'PEGAR OS MATERIAS AO CHEGAR!!'
+                )}
               </div>
             </div>
 
@@ -449,6 +600,26 @@ export default function App() {
             </div>
           </section>
         </main>
+        ) : (
+          <main className="leitura-view-container">
+            <h2 className="section-title">VAMOS TREINAR A LEITURA:</h2>
+            <div className="leitura-card-large">
+              <div className="leitura-row">
+                <div className="leitura-pill">BOM DIA</div>
+                <div className="leitura-pill">BOA TARDE</div>
+                <div className="leitura-pill">ORGANIZE A SALA</div>
+              </div>
+              <div className="leitura-row">
+                <div className="leitura-pill">RESPEITE OS COLEGAS</div>
+                <div className="leitura-pill">RESPEITE A PROFESSORA</div>
+              </div>
+              <div className="leitura-row">
+                <div className="leitura-pill">BOA AULA HOJE</div>
+                <div className="leitura-pill">FOCO NOS ESTUDOS</div>
+              </div>
+            </div>
+          </main>
+        )}
 
         {/* Fullscreen Event Overlay Alert matching Alerta café da manhã.png, Alerta segunda aula.png, etc */}
         {currentAlert && (

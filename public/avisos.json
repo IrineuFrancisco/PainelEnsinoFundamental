@@ -2,6 +2,19 @@
   "versao": "1.0.0",
   "ultimaAtualizacao": "2026-09-16T14:45:00.000Z",
   "turmaPadrao": "1_2_ano",
+  "aulas": {
+    "horarioCorteTarde": "12:00",
+    "manha": [
+      { "disciplina": "PORTUGUÊS", "horario": "7:00 ÀS 7:50" },
+      { "disciplina": "CIÊNCIAS", "horario": "8:10 ÀS 9:00" },
+      { "disciplina": "MATEMÁTICA", "horario": "9:00 ÀS 9:50" }
+    ],
+    "tarde": [
+      { "disciplina": "PORTUGUÊS", "horario": "13:00 ÀS 13:50" },
+      { "disciplina": "CIÊNCIAS", "horario": "14:20 ÀS 15:10" },
+      { "disciplina": "MATEMÁTICA", "horario": "15:10 ÀS 16:00" }
+    ]
+  },
   "avisos": [
     {
       "id": "av-1",
@@ -209,7 +222,23 @@
       "audio": "/sons/tchau.mp3",
       "cropImg": "/images/crop_saida.png",
       "fullImg": "/images/Alerta saida.png",
-      "descricao": "Horário de Saída dos Alunos"
+      "descricao": "Horário de Saída dos Alunos",
+      "diasSemana": [1, 2, 4, 5]
+    },
+    {
+      "id": "h-6",
+      "evento": "Saída Antecipada – Quarta-Feira",
+      "inicio": "11:30",
+      "fim": "11:45",
+      "tipo": "saida",
+      "chaveAlerta": "saida_quarta",
+      "tituloAlerta": "Saída Quarta-Feira",
+      "labelAlerta": "HORA DA SAÍDA – QUARTA-FEIRA",
+      "audio": "/sons/tchau.mp3",
+      "cropImg": "/images/crop_saida.png",
+      "fullImg": "/images/Alerta saida.png",
+      "descricao": "Saída antecipada às 11:30 – somente nas quartas-feiras",
+      "diasSemana": [3]
     }
   ],
   "gradeBanheiro": [

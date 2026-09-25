@@ -5,6 +5,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 24px;
+  gap: 24px;
 }
 
 /* SESI Logo Block matching reference image */
@@ -12,6 +13,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .sesi-logo-img {
@@ -22,21 +24,30 @@
   display: block;
 }
 
-/* Right Pill Capsule for Date and Time */
-.date-time-pill {
-  background-color: var(--color-pill-bg);
-  border-radius: 50px;
-  padding: 14px 36px;
+.header-pill-container {
   display: flex;
   align-items: center;
-  gap: 32px;
+  flex: 1;
+  position: relative;
+  gap: 12px;
+}
+
+/* Right Pill Capsule for Date and Time - Elongated across top */
+.date-time-pill {
+  flex: 1;
+  background-color: var(--color-pill-bg);
+  border-radius: 50px;
+  padding: 12px 42px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .date-pill-text {
   font-family: var(--font-momo);
   font-weight: 900;
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -45,8 +56,9 @@
 .time-pill-text {
   font-family: var(--font-momo);
   font-weight: 900;
-  font-size: 1.8rem;
+  font-size: 1.45rem;
   color: #000000;
+  letter-spacing: 0.5px;
 }
 
 /* Discrete Header Action Buttons */
@@ -147,6 +159,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 56px;
+}
+
+.aula-icon-img {
+  height: 56px;
+  max-width: 140px;
+  object-fit: contain;
+  display: block;
 }
 
 .aula-card-text {
@@ -228,11 +248,77 @@
   align-items: flex-end;
   flex: 1;
   padding-bottom: 0;
+  overflow: visible;
 }
 
 .mascote-img-full {
-  max-height: 270px;
+  max-height: 380px;
+  width: auto;
+  max-width: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.06));
+  transition: transform 0.3s ease;
+}
+
+/* Reading Practice View (Vamos Treinar a Leitura) matching reference image */
+.leitura-view-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: calc(100% - 90px);
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.leitura-view-container .section-title {
+  font-size: 1.6rem;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+
+.leitura-card-large {
+  background-color: var(--color-pill-bg, #D1F0FF);
+  border-radius: 36px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 44px 50px;
+  gap: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.leitura-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 44px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.leitura-pill {
+  background-color: #EBD9FF;
+  border-radius: 36px;
+  padding: 22px 52px;
+  font-family: var(--font-momo), sans-serif;
+  font-weight: 900;
+  font-size: 2.25rem;
+  color: #000000;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  user-select: none;
+}
+
+.leitura-pill:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
 }
 
 /* Fullscreen Event Overlay Alert matching Alerta café da manhã.png, Alerta segunda aula.png, etc */
