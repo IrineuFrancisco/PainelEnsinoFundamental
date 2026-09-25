@@ -128,103 +128,88 @@
   },
   "horarios": [
     {
-      "id": "h-1",
-      "evento": "Entrada dos Alunos",
+      "id": "h-0",
+      "evento": "Entrada / Bom Dia",
       "inicio": "07:00",
       "fim": "07:15",
       "tipo": "entrada",
-      "descricao": "Recepção com música alegre no portão principal",
-      "som": "/images/Alerta café da manhã.png"
+      "chaveAlerta": "entrada",
+      "tituloAlerta": "Alerta bom dia",
+      "labelAlerta": "BOM DIA!",
+      "audio": "/sons/bom dia.mp3",
+      "cropImg": "/images/crop_bom_dia.png",
+      "fullImg": "/images/crop_bom_dia.png",
+      "descricao": "Recepção matinal com música de Bom Dia"
+    },
+    {
+      "id": "h-1",
+      "evento": "Café da Manhã",
+      "inicio": "07:50",
+      "fim": "08:10",
+      "tipo": "refeicao",
+      "chaveAlerta": "cafe_manha",
+      "tituloAlerta": "Alerta café da manhã",
+      "labelAlerta": "CAFÉ DA MANHÃ",
+      "audio": "/sons/comer comer.mp3",
+      "cropImg": "/images/crop_cafe_manha.png",
+      "fullImg": "/images/Alerta café da manhã.png",
+      "descricao": "Horário do Café da Manhã dos alunos"
     },
     {
       "id": "h-2",
-      "evento": "Café da Manhã",
-      "inicio": "07:15",
-      "fim": "07:45",
-      "tipo": "refeicao",
-      "descricao": "Refeição matinal no refeitório das crianças",
-      "som": "/images/Alerta café da manhã.png"
+      "evento": "Fim da 2ª Aula",
+      "inicio": "09:00",
+      "fim": "09:20",
+      "tipo": "aula",
+      "chaveAlerta": "segunda_aula",
+      "tituloAlerta": "Alerta segunda aula",
+      "labelAlerta": "FIM DA 2º AULA",
+      "audio": null,
+      "cropImg": "/images/crop_segunda_aula.png",
+      "fullImg": "/images/Alerta segunda aula.png",
+      "descricao": "Sinal de término da 2ª aula"
     },
     {
       "id": "h-3",
-      "evento": "1ª Aula / Roda de Conversa",
-      "inicio": "07:45",
-      "fim": "08:35",
-      "tipo": "aula",
-      "descricao": "Língua Portuguesa / Alfabetização Visual",
-      "som": "/images/Alerta segunda aula.png"
+      "evento": "Horário de Almoço",
+      "inicio": "10:40",
+      "fim": "11:30",
+      "tipo": "refeicao",
+      "chaveAlerta": "almoco",
+      "tituloAlerta": "Alerta almoço",
+      "labelAlerta": "ALMOÇO",
+      "audio": "/sons/taNaHoraDoPaPa.mp3",
+      "cropImg": "/images/crop_almoco.png",
+      "fullImg": "/images/Alerta almoço.png",
+      "descricao": "Horário do Almoço Nutritivo"
     },
     {
       "id": "h-4",
-      "evento": "2ª Aula / Atividade Guiada",
-      "inicio": "08:35",
-      "fim": "09:25",
-      "tipo": "aula",
-      "descricao": "Matemática Divertida & Jogos Lógicos",
-      "som": "/images/Alerta segunda aula.png"
+      "evento": "Café da Tarde",
+      "inicio": "14:00",
+      "fim": "14:20",
+      "tipo": "refeicao",
+      "chaveAlerta": "cafe_tarde",
+      "tituloAlerta": "Alerta café da tarde",
+      "labelAlerta": "CAFÉ DA TARDE",
+      "audio": "/sons/comer comer.mp3",
+      "cropImg": "/images/crop_cafe_tarde.png",
+      "fullImg": "/images/Alerta café da tarde.png",
+      "descricao": "Horário do Lanche da Tarde"
     },
     {
       "id": "h-5",
-      "evento": "Recreio Matutino & Lanche",
-      "inicio": "09:25",
-      "fim": "09:45",
-      "tipo": "recreio",
-      "descricao": "Brincadeiras dirigidas e pátio coberto",
-      "som": "/images/Alerta café da manhã.png"
-    },
-    {
-      "id": "h-6",
-      "evento": "3ª Aula / Laboratório & Projetos",
-      "inicio": "09:45",
-      "fim": "10:35",
-      "tipo": "aula",
-      "descricao": "Ciências da Natureza / Projeto Preferido",
-      "som": "/images/Alerta segunda aula.png"
-    },
-    {
-      "id": "h-7",
-      "evento": "4ª Aula / Hora da Tarefa",
-      "inicio": "10:35",
-      "fim": "11:25",
-      "tipo": "tarefa",
-      "descricao": "Organização da mochila e fixação de tarefas",
-      "som": "/images/Alerta segunda aula.png"
-    },
-    {
-      "id": "h-8",
-      "evento": "Horário de Almoço",
-      "inicio": "11:25",
-      "fim": "12:30",
-      "tipo": "refeicao",
-      "descricao": "Almoço nutritivo no Refeitório Central",
-      "som": "/images/Alerta almoço.png"
-    },
-    {
-      "id": "h-9",
-      "evento": "5ª Aula / Arte & Educação Física",
-      "inicio": "12:30",
-      "fim": "13:20",
-      "tipo": "aula",
-      "descricao": "Expressão Corporal e Artes Visuais",
-      "som": "/images/Alerta segunda aula.png"
-    },
-    {
-      "id": "h-10",
-      "evento": "Café da Tarde / Lanche",
-      "inicio": "15:00",
-      "fim": "15:20",
-      "tipo": "refeicao",
-      "descricao": "Lanche da tarde revigorante",
-      "som": "/images/Alerta café da tarde.png"
-    },
-    {
-      "id": "h-11",
       "evento": "Saída dos Alunos",
-      "inicio": "17:00",
-      "fim": "17:15",
+      "inicio": "16:00",
+      "fim": "16:15",
       "tipo": "saida",
-      "descricao": "Embarque com responsabilidade e sinal sonoro",
-      "som": "/images/Alerta saida.png"
+      "chaveAlerta": "saida",
+      "tituloAlerta": "Alerta saida",
+      "labelAlerta": "HORA DA SAÍDA",
+      "audio": "/sons/tchau.mp3",
+      "cropImg": "/images/crop_saida.png",
+      "fullImg": "/images/Alerta saida.png",
+      "descricao": "Horário de Saída dos Alunos"
     }
   ],
   "gradeBanheiro": [

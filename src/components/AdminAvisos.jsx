@@ -282,53 +282,45 @@ export default function AdminAvisos({ data, onSaveData, onClose, onSimulateAlert
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <button 
-                  onClick={() => {
-                    playChimeWithFadeIn({ durationSecs: 4 });
-                    onSimulateAlert({ titulo: 'Alerta café da manhã', mensagem: 'Horário do Café da Manhã das crianças!' });
-                  }}
+                  onClick={() => onSimulateAlert('entrada')}
+                  style={{ background: '#E0F2FE', border: '2px solid #0284C7', padding: '14px', borderRadius: '12px', fontWeight: 800, color: '#0369A1', cursor: 'pointer', textAlign: 'left' }}
+                >
+                  ☀️ 07:00 - Simular Entrada (bom dia.mp3)
+                </button>
+
+                <button 
+                  onClick={() => onSimulateAlert('cafe_manha')}
                   style={{ background: '#FFF3E0', border: '2px solid #F77F00', padding: '14px', borderRadius: '12px', fontWeight: 800, color: '#C2410C', cursor: 'pointer', textAlign: 'left' }}
                 >
-                  ☕ Simular Alerta Café da Manhã
+                  ☕ 07:50 - Simular Café da Manhã (comer comer.mp3)
                 </button>
 
                 <button 
-                  onClick={() => {
-                    playChimeWithFadeIn({ durationSecs: 4 });
-                    onSimulateAlert({ titulo: 'Alerta almoço', mensagem: 'Hora do Almoço Nutritivo!' });
-                  }}
-                  style={{ background: '#FFEBEE', border: '2px solid #E30613', padding: '14px', borderRadius: '12px', fontWeight: 800, color: '#B3000B', cursor: 'pointer', textAlign: 'left' }}
-                >
-                  🍲 Simular Alerta Almoço
-                </button>
-
-                <button 
-                  onClick={() => {
-                    playChimeWithFadeIn({ durationSecs: 4 });
-                    onSimulateAlert({ titulo: 'Alerta café da tarde', mensagem: 'Horário do Lanche da Tarde!' });
-                  }}
-                  style={{ background: '#E6F7F5', border: '2px solid #00A896', padding: '14px', borderRadius: '12px', fontWeight: 800, color: '#0F766E', cursor: 'pointer', textAlign: 'left' }}
-                >
-                  🍎 Simular Alerta Lanche da Tarde
-                </button>
-
-                <button 
-                  onClick={() => {
-                    playChimeWithFadeIn({ durationSecs: 4 });
-                    onSimulateAlert({ titulo: 'Alerta segunda aula', mensagem: 'Sinal de Troca de Aula!' });
-                  }}
+                  onClick={() => onSimulateAlert('segunda_aula')}
                   style={{ background: '#F3E8FF', border: '2px solid #7209B7', padding: '14px', borderRadius: '12px', fontWeight: 800, color: '#6B21A8', cursor: 'pointer', textAlign: 'left' }}
                 >
-                  🔔 Simular Troca de Aula
+                  🔔 09:00 - Simular Fim da 2ª Aula (Sinal Escolar)
                 </button>
 
                 <button 
-                  onClick={() => {
-                    playChimeWithFadeIn({ durationSecs: 4 });
-                    onSimulateAlert({ titulo: 'Alerta saida', mensagem: 'Atenção alunos: Horário de Saída!' });
-                  }}
-                  style={{ background: '#FEF2F2', border: '2px solid #DC2626', padding: '14px', borderRadius: '12px', fontWeight: 800, color: '#991B1B', cursor: 'pointer', textAlign: 'left', gridColumn: 'span 2' }}
+                  onClick={() => onSimulateAlert('almoco')}
+                  style={{ background: '#FFEBEE', border: '2px solid #E30613', padding: '14px', borderRadius: '12px', fontWeight: 800, color: '#B3000B', cursor: 'pointer', textAlign: 'left' }}
                 >
-                  🚌 Simular Horário de Saída
+                  🍲 10:40 - Simular Almoço (taNaHoraDoPaPa.mp3)
+                </button>
+
+                <button 
+                  onClick={() => onSimulateAlert('cafe_tarde')}
+                  style={{ background: '#E6F7F5', border: '2px solid #00A896', padding: '14px', borderRadius: '12px', fontWeight: 800, color: '#0F766E', cursor: 'pointer', textAlign: 'left' }}
+                >
+                  🍎 14:00 - Simular Café da Tarde (comer comer.mp3)
+                </button>
+
+                <button 
+                  onClick={() => onSimulateAlert('saida')}
+                  style={{ background: '#FEF2F2', border: '2px solid #DC2626', padding: '14px', borderRadius: '12px', fontWeight: 800, color: '#991B1B', cursor: 'pointer', textAlign: 'left' }}
+                >
+                  🚌 16:00 - Simular Saída (tchau.mp3)
                 </button>
               </div>
             </div>

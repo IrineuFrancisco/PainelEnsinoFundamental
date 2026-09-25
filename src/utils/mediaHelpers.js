@@ -92,3 +92,73 @@ export function playChimeWithFadeIn({ durationSecs = 4, maxVolume = 0.8, type = 
     console.warn('Não foi possível sintetizar áudio via Web Audio API:', err);
   }
 }
+
+let activeAudioInstance = null;
+
+/**
+ * Toca arquivo de áudio MP3 (ex: bom dia.mp3, comer comer.mp3) com efeito Fade-In suave
+ * Suporta callback onEnded para fechar telas de alerta automaticamente no final do som
+ */
+export function playAlertAudio(audioPath, { fadeDurationSecs = 1.2, maxVolume = 0.95, onEnded = null } = {}) {
+  try {
+    stopAlertAudio();
+
+    if (!audioPath) {
+      playChimeWithFadeIn({ durationSecs: 5 });
+      if (onEnded) setTimeout(onEnded, 6000);
+      return;
+    }
+
+    const audio = new Audio(encodeURI(audioPath));
+    audio.volume = 0;
+    activeAudioInstance = audio;
+
+    if (onEnded) {
+      audio.onended = () => {
+        onEnded();
+      };
+    }
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        const intervalMs = 50;
+        const steps = (fadeDurationSecs * 1000) / intervalMs;
+        const volStep = maxVolume / steps;
+        let count = 0;
+
+        const timer = setInterval(() => {
+          count++;
+          if (activeAudioInstance === audio && !audio.paused && audio.volume + volStep <= maxVolume) {
+            audio.volume = Math.min(maxVolume, audio.volume + volStep);
+          }
+          if (count >= steps) {
+            clearInterval(timer);
+          }
+        }, intervalMs);
+      }).catch(err => {
+        console.warn('Autoplay com MP3 travado pelo navegador. Usando sintetizador Web Audio API:', err);
+        playChimeWithFadeIn({ durationSecs: 5 });
+        if (onEnded) setTimeout(onEnded, 6000);
+      });
+    }
+  } catch (err) {
+    console.error('Erro ao reproduzir áudio do alerta:', err);
+    playChimeWithFadeIn({ durationSecs: 5 });
+    if (onEnded) setTimeout(onEnded, 6000);
+  }
+}
+
+/**
+ * Para qualquer áudio ativo
+ */
+export function stopAlertAudio() {
+  if (activeAudioInstance) {
+    try {
+      activeAudioInstance.pause();
+      activeAudioInstance.currentTime = 0;
+    } catch (e) {}
+    activeAudioInstance = null;
+  }
+}
+

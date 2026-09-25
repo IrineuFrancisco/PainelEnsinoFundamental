@@ -5,10 +5,97 @@ import AdminAvisos from './components/AdminAvisos';
 import { AbcIcon, ScienceIcon, NumbersIcon } from './components/SubjectIcons';
 
 import { syncTimeWithServer, getSyncedDate, formatDateExtenso, formatTimeBR, getDiaSemanaChave } from './utils/timeSync';
-import { loadPanelData, playChimeWithFadeIn } from './utils/mediaHelpers';
-import { Volume2, Settings, X, Bell } from 'lucide-react';
+import { loadPanelData, playChimeWithFadeIn, playAlertAudio, stopAlertAudio } from './utils/mediaHelpers';
+import { fetchCardapioSupabase } from './utils/supabaseClient';
+import { Volume2, Settings, X, Bell, RefreshCw } from 'lucide-react';
 
 import './App.css';
+
+export function getAlertDetails(keyOrTitle, customLabel = null, displayTime = null) {
+  const str = String(keyOrTitle || '').toLowerCase();
+
+  if (str.includes('bomdia') || str.includes('bom_dia') || str.includes('entrada') || displayTime === '07:00' || displayTime === '7:00') {
+    return {
+      key: 'entrada',
+      titulo: 'Alerta bom dia',
+      label: 'BOM DIA!',
+      displayTime: displayTime || '7:00',
+      audio: '/sons/bom dia.mp3',
+      cropImg: '/images/crop_bom_dia.png',
+      fullImg: '/images/crop_bom_dia.png'
+    };
+  }
+
+  if (str.includes('manhã') || str.includes('manha') || str.includes('cafe_manha') || displayTime === '07:50' || displayTime === '7:50') {
+    return {
+      key: 'cafe_manha',
+      titulo: 'Alerta café da manhã',
+      label: 'CAFÉ DA MANHÃ',
+      displayTime: displayTime || '7:50',
+      audio: '/sons/comer comer.mp3',
+      cropImg: '/images/crop_cafe_manha.png',
+      fullImg: '/images/Alerta café da manhã.png'
+    };
+  }
+
+  if (str.includes('segunda') || str.includes('aula') || str.includes('segunda_aula') || displayTime === '09:00' || displayTime === '9:00') {
+    return {
+      key: 'segunda_aula',
+      titulo: 'Alerta segunda aula',
+      label: 'FIM DA 2º AULA',
+      displayTime: displayTime || '9:00',
+      audio: null,
+      cropImg: '/images/crop_segunda_aula.png',
+      fullImg: '/images/Alerta segunda aula.png'
+    };
+  }
+
+  if (str.includes('almoço') || str.includes('almoco') || displayTime === '10:40') {
+    return {
+      key: 'almoco',
+      titulo: 'Alerta almoço',
+      label: 'ALMOÇO',
+      displayTime: displayTime || '10:40',
+      audio: '/sons/taNaHoraDoPaPa.mp3',
+      cropImg: '/images/crop_almoco.png',
+      fullImg: '/images/Alerta almoço.png'
+    };
+  }
+
+  if (str.includes('tarde') || str.includes('cafe_tarde') || displayTime === '14:00') {
+    return {
+      key: 'cafe_tarde',
+      titulo: 'Alerta café da tarde',
+      label: 'CAFÉ DA TARDE',
+      displayTime: displayTime || '14:00',
+      audio: '/sons/comer comer.mp3',
+      cropImg: '/images/crop_cafe_tarde.png',
+      fullImg: '/images/Alerta café da tarde.png'
+    };
+  }
+
+  if (str.includes('saida') || str.includes('saída') || displayTime === '16:00') {
+    return {
+      key: 'saida',
+      titulo: 'Alerta saida',
+      label: 'HORA DA SAÍDA',
+      displayTime: displayTime || '16:00',
+      audio: '/sons/tchau.mp3',
+      cropImg: '/images/crop_saida.png',
+      fullImg: '/images/Alerta saida.png'
+    };
+  }
+
+  return {
+    key: 'custom',
+    titulo: keyOrTitle || 'Alerta',
+    label: customLabel || 'ALERTA ESCOLAR',
+    displayTime: displayTime || '00:00',
+    audio: null,
+    cropImg: '/images/crop_segunda_aula.png',
+    fullImg: '/images/Alerta segunda aula.png'
+  };
+}
 
 export default function App() {
   const [syncedDate, setSyncedDate] = useState(getSyncedDate());
@@ -19,14 +106,23 @@ export default function App() {
   // Modals & Alerts
   const [isModalSenhaOpen, setIsModalSenhaOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isAlertMenuOpen, setIsAlertMenuOpen] = useState(false);
   const [currentAlert, setCurrentAlert] = useState(null);
 
-  // 1. Load panel data (Offline First via /avisos.json)
+  // 1. Load panel data (Offline First via /avisos.json) + Supabase Cardápio Sync
   useEffect(() => {
     async function fetchData() {
       const res = await loadPanelData();
       if (res.data) {
         setPanelData(res.data);
+        // Sincronização inicial do Cardápio via Supabase
+        const supRes = await fetchCardapioSupabase(res.data);
+        if (supRes.success && supRes.data) {
+          setPanelData((prev) => ({
+            ...prev,
+            cardapio: supRes.data
+          }));
+        }
       }
     }
     fetchData();
@@ -43,38 +139,133 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // 3. Tick 1s + check event boundary at :00 seconds
+  // 3. Smart TV Kiosk Mode Resilience (Screen WakeLock + Audio Autoplay Unlock + 03:00 AM Refresh)
+  useEffect(() => {
+    let wakeLock = null;
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+        }
+      } catch (err) {
+        console.log('WakeLock indisponível:', err);
+      }
+    }
+    requestWakeLock();
+
+    // Auto unlock audio on any touch/click/remote key press
+    const unlockAudio = () => {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          const dummyCtx = new AudioContext();
+          dummyCtx.resume();
+        }
+      } catch (e) {}
+    };
+    window.addEventListener('click', unlockAudio, { once: true });
+    window.addEventListener('keydown', unlockAudio, { once: true });
+    window.addEventListener('touchstart', unlockAudio, { once: true });
+
+    return () => {
+      if (wakeLock) wakeLock.release().catch(() => {});
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+      window.removeEventListener('touchstart', unlockAudio);
+    };
+  }, []);
+
+  const handleCloseAlert = () => {
+    stopAlertAudio();
+    setCurrentAlert(null);
+  };
+
+  const triggerAlert = (key, customTime = null) => {
+    const details = getAlertDetails(key, null, customTime);
+    if (details.audio) {
+      playAlertAudio(details.audio, {
+        onEnded: () => {
+          handleCloseAlert();
+        }
+      });
+    } else {
+      playChimeWithFadeIn({ durationSecs: 5 });
+    }
+    setCurrentAlert(details);
+    setIsAlertMenuOpen(false);
+  };
+
+  // 4. Tick 1s + check event boundary at :00 seconds + Cardápio routines (07:10, 08:00, 11:00) + 03:00 AM reload
   useEffect(() => {
     const timer = setInterval(() => {
       const now = getSyncedDate();
       setSyncedDate(now);
 
-      if (now.getSeconds() === 0 && panelData?.horarios) {
-        const hm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-        const match = panelData.horarios.find((h) => h.inicio === hm);
-        
-        if (match) {
-          let alertTitle = 'Alerta segunda aula';
-          if (match.tipo === 'refeicao') {
-            if (hm < '10:00') alertTitle = 'Alerta café da manhã';
-            else if (hm < '14:00') alertTitle = 'Alerta almoço';
-            else alertTitle = 'Alerta café da tarde';
-          } else if (match.tipo === 'saida') {
-            alertTitle = 'Alerta saida';
-          }
+      // Memory flush & clean reload at 03:00 AM for long-running Smart TVs
+      if (now.getHours() === 3 && now.getMinutes() === 0 && now.getSeconds() === 0) {
+        window.location.reload(true);
+        return;
+      }
 
-          playChimeWithFadeIn({ durationSecs: 5 });
-          setCurrentAlert({
-            titulo: alertTitle,
-            label: match.evento,
-            mensagem: match.descricao
+      if (now.getSeconds() === 0) {
+        const hm = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+        // Rotinas de atualização do Cardápio via Supabase às 7:10, 8:00 e 11:00
+        if (hm === '07:10' || hm === '08:00' || hm === '11:00') {
+          console.log(`[Rotina Cardápio] Executando atualização programada das ${hm}h via Supabase...`);
+          fetchCardapioSupabase(panelData).then((supRes) => {
+            if (supRes.success && supRes.data) {
+              setPanelData((prev) => ({
+                ...prev,
+                cardapio: supRes.data
+              }));
+            }
           });
+        }
+
+        let matchedAlert = null;
+
+        if (hm === '07:00') {
+          matchedAlert = getAlertDetails('entrada', 'BOM DIA!', '7:00');
+        } else if (hm === '07:50') {
+          matchedAlert = getAlertDetails('cafe_manha', 'CAFÉ DA MANHÃ', '7:50');
+        } else if (hm === '09:00') {
+          matchedAlert = getAlertDetails('segunda_aula', 'FIM DA 2º AULA', '9:00');
+        } else if (hm === '10:40') {
+          matchedAlert = getAlertDetails('almoco', 'ALMOÇO', '10:40');
+        } else if (hm === '14:00') {
+          matchedAlert = getAlertDetails('cafe_tarde', 'CAFÉ DA TARDE', '14:00');
+        } else if (hm === '16:00') {
+          matchedAlert = getAlertDetails('saida', 'HORA DA SAÍDA', '16:00');
+        } else if (panelData?.horarios) {
+          const match = panelData.horarios.find((h) => h.inicio === hm);
+          if (match) {
+            matchedAlert = getAlertDetails(
+              match.chaveAlerta || match.tituloAlerta || match.evento,
+              match.labelAlerta || match.evento,
+              match.inicio
+            );
+          }
+        }
+
+        if (matchedAlert) {
+          triggerAlert(matchedAlert.key, matchedAlert.displayTime);
         }
       }
     }, 1000);
 
     return () => clearInterval(timer);
   }, [panelData]);
+
+  // Auto close alert overlay after 30 seconds
+  useEffect(() => {
+    if (currentAlert) {
+      const autoClose = setTimeout(() => {
+        handleCloseAlert();
+      }, 30000);
+      return () => clearTimeout(autoClose);
+    }
+  }, [currentAlert]);
 
   if (!panelData) {
     return (
@@ -96,10 +287,10 @@ export default function App() {
         {/* Top Header Row matching Tela principal.png */}
         <header className="header-row">
           <div className="sesi-logo-block">
-            <span className="sesi-logo-text">SESI</span>
+            <img src="/images/Sesi-SP.jpg" alt="Logo SESI" className="sesi-logo-img" />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
             <div className="date-time-pill">
               <span className="date-pill-text">
                 {formatDateExtenso(syncedDate)}
@@ -110,21 +301,14 @@ export default function App() {
             </div>
 
             <div className="header-actions">
-              <button 
+              <button
                 className="action-btn-circle"
-                title="Testar Sinal Sonoro com Fade-In"
-                onClick={() => {
-                  playChimeWithFadeIn({ durationSecs: 4 });
-                  setCurrentAlert({
-                    titulo: 'Alerta café da manhã',
-                    label: 'CAFÉ DA MANHÃ',
-                    mensagem: 'Sinal escolar com efeito Fade-In!'
-                  });
-                }}
+                title="Testar Alertas de Horários"
+                onClick={() => setIsAlertMenuOpen(!isAlertMenuOpen)}
               >
-                <Volume2 size={20} />
+                <Bell size={20} />
               </button>
-              <button 
+              <button
                 className="action-btn-circle"
                 title="Abrir Gerenciador Administrativo"
                 onClick={() => setIsModalSenhaOpen(true)}
@@ -132,6 +316,31 @@ export default function App() {
                 <Settings size={20} />
               </button>
             </div>
+
+            {/* Floating Quick Alert Menu */}
+            {isAlertMenuOpen && (
+              <div className="alert-dropdown-menu">
+                <div className="dropdown-title">Testar Alertas Programados</div>
+                <button onClick={() => triggerAlert('entrada', '7:00')}>
+                  ☀️ 07:00 - Entrada (bom dia.mp3)
+                </button>
+                <button onClick={() => triggerAlert('cafe_manha', '7:50')}>
+                  ☕ 07:50 - Café da Manhã (comer comer.mp3)
+                </button>
+                <button onClick={() => triggerAlert('segunda_aula', '9:00')}>
+                  🔔 09:00 - Fim da 2ª Aula (Sinal Escolar)
+                </button>
+                <button onClick={() => triggerAlert('almoco', '10:40')}>
+                  🍲 10:40 - Almoço (taNaHoraDoPaPa.mp3)
+                </button>
+                <button onClick={() => triggerAlert('cafe_tarde', '14:00')}>
+                  🍎 14:00 - Café da Tarde (comer comer.mp3)
+                </button>
+                <button onClick={() => triggerAlert('saida', '16:00')}>
+                  🚌 16:00 - Hora da Saída (tchau.mp3)
+                </button>
+              </div>
+            )}
           </div>
         </header>
 
@@ -191,11 +400,21 @@ export default function App() {
               <div className="cardapio-section">
                 <h3 className="cardapio-sub-title">ALMOÇO:</h3>
                 <ul className="cardapio-bullet-list">
-                  <li>• ARROZ</li>
-                  <li>• FEIJÃO</li>
-                  <li>• BIFE A MILANESA</li>
-                  <li>• SALADA</li>
-                  <li>• PUDIM</li>
+                  {cardapioHoje.almoco?.prato ? (
+                    <>
+                      <li>• {cardapioHoje.almoco.prato}</li>
+                      {cardapioHoje.almoco.salada && <li>• {cardapioHoje.almoco.salada}</li>}
+                      {cardapioHoje.almoco.sobremesa && <li>• {cardapioHoje.almoco.sobremesa}</li>}
+                    </>
+                  ) : (
+                    <>
+                      <li>• ARROZ</li>
+                      <li>• FEIJÃO</li>
+                      <li>• BIFE A MILANESA</li>
+                      <li>• SALADA</li>
+                      <li>• PUDIM</li>
+                    </>
+                  )}
                 </ul>
               </div>
 
@@ -214,7 +433,7 @@ export default function App() {
           {/* Column 3: LEMBRETE: & Mascote */}
           <section className="column-section">
             <h2 className="section-title">LEMBRETE:</h2>
-            
+
             <div className="lembrete-card">
               <div className="lembrete-text">
                 PEGAR OS MATERIAS AO CHEGAR!!
@@ -222,74 +441,53 @@ export default function App() {
             </div>
 
             <div className="mascote-container-bottom">
-              <img 
-                src="/images/Mascote.png" 
-                alt="Mascote SESI" 
+              <img
+                src="/images/Mascote.png"
+                alt="Mascote SESI"
                 className="mascote-img-full"
               />
             </div>
           </section>
         </main>
 
-        {/* Fullscreen Event Overlay Alert matching Alerta café da manhã.png, etc */}
+        {/* Fullscreen Event Overlay Alert matching Alerta café da manhã.png, Alerta segunda aula.png, etc */}
         {currentAlert && (
           <div className="alert-fullscreen-overlay">
             <div className="alert-canvas">
               <header className="header-row">
                 <div className="sesi-logo-block">
-                  <span className="sesi-logo-text">SESI</span>
+                  <img src="/images/Sesi-SP.jpg" alt="Logo SESI" className="sesi-logo-img" />
                 </div>
                 <div className="date-time-pill">
                   <span className="date-pill-text">
                     {formatDateExtenso(syncedDate)}
                   </span>
                   <span className="time-pill-text">
-                    {String(syncedDate.getHours()).padStart(2, '0')}:{String(syncedDate.getMinutes()).padStart(2, '0')}
+                    {currentAlert.displayTime || formatTimeBR(syncedDate)}
                   </span>
                 </div>
               </header>
 
               <div className="alert-center-circle">
-                <div className="alert-circle-badge">
-                  <img 
-                    src={
-                      currentAlert.titulo.includes('almoço') ? '/images/Alerta almoço.png' :
-                      currentAlert.titulo.includes('café da manhã') ? '/images/Alerta café da manhã.png' :
-                      currentAlert.titulo.includes('café da tarde') ? '/images/Alerta café da tarde.png' :
-                      currentAlert.titulo.includes('saida') ? '/images/Alerta saida.png' :
-                      '/images/Alerta segunda aula.png'
-                    } 
-                    alt="Alerta" 
-                    className="alert-circle-img" 
-                  />
-                  <h2 className="alert-circle-title">
-                    {currentAlert.label || currentAlert.titulo.replace('Alerta ', '')}
-                  </h2>
-                </div>
-
-                <button 
-                  onClick={() => setCurrentAlert(null)}
-                  style={{
-                    background: 'var(--sesi-red)',
-                    color: 'white',
-                    border: 'none',
-                    padding: '12px 32px',
-                    borderRadius: '30px',
-                    fontWeight: 900,
-                    fontSize: '1.1rem',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(227, 6, 19, 0.4)'
-                  }}
-                >
-                  Entendido / Voltar
-                </button>
+                <img
+                  src={currentAlert.cropImg}
+                  alt={currentAlert.label}
+                  className="alert-cropped-circle-img"
+                />
               </div>
+
+              <button
+                className="alert-close-btn"
+                onClick={handleCloseAlert}
+              >
+                Entendido <X size={20} style={{ marginLeft: 6 }} />
+              </button>
             </div>
           </div>
         )}
 
         {/* Password Modal for Admin */}
-        <ModalSenhaAdmin 
+        <ModalSenhaAdmin
           isOpen={isModalSenhaOpen}
           onClose={() => setIsModalSenhaOpen(false)}
           onSuccess={() => {
@@ -300,11 +498,11 @@ export default function App() {
 
         {/* Admin Management Panel */}
         {isAdminOpen && (
-          <AdminAvisos 
+          <AdminAvisos
             data={panelData}
             onSaveData={(updated) => setPanelData(updated)}
             onClose={() => setIsAdminOpen(false)}
-            onSimulateAlert={(alertObj) => setCurrentAlert(alertObj)}
+            onSimulateAlert={(alertKey) => triggerAlert(alertKey)}
           />
         )}
       </div>
