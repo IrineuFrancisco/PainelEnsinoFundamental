@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Settings, Plus, Trash2, Edit2, Save, Download, RefreshCw, X, Volume2, Bell } from 'lucide-react';
+import { Settings, Plus, Trash2, Edit2, Save, Download, RefreshCw, X, Volume2, Bell, CloudUpload, CloudDownload } from 'lucide-react';
 import { savePanelDataToLocal, playChimeWithFadeIn } from '../utils/mediaHelpers';
+import { fetchCardapioSupabase, uploadCardapioToSupabase } from '../utils/supabaseClient';
 
 export default function AdminAvisos({ data, onSaveData, onClose, onSimulateAlert }) {
   const [activeTab, setActiveTab] = useState('avisos');
   const [panelData, setPanelData] = useState(JSON.parse(JSON.stringify(data)));
   const [editingAviso, setEditingAviso] = useState(null);
+  const [supabaseStatus, setSupabaseStatus] = useState(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Form states para novo aviso
   const [novoAviso, setNovoAviso] = useState({
@@ -21,6 +24,31 @@ export default function AdminAvisos({ data, onSaveData, onClose, onSimulateAlert
     savePanelDataToLocal(panelData);
     onSaveData(panelData);
     alert('Dados salvos no armazenamento local resiliente com sucesso!');
+  };
+
+  const handleUploadSupabase = async () => {
+    setIsSyncing(true);
+    setSupabaseStatus('Enviando cardápio para o Supabase...');
+    const res = await uploadCardapioToSupabase(panelData.cardapio);
+    setIsSyncing(false);
+    if (res.success) {
+      setSupabaseStatus('✅ Cardápio importado e sincronizado no Supabase com sucesso!');
+    } else {
+      setSupabaseStatus(`❌ Erro no Supabase: ${res.error}`);
+    }
+  };
+
+  const handleFetchSupabase = async () => {
+    setIsSyncing(true);
+    setSupabaseStatus('Buscando dados no Supabase...');
+    const res = await fetchCardapioSupabase(panelData);
+    setIsSyncing(false);
+    if (res.success && res.data) {
+      setPanelData((prev) => ({ ...prev, cardapio: res.data }));
+      setSupabaseStatus('✅ Cardápio baixado do Supabase e aplicado!');
+    } else {
+      setSupabaseStatus('⚠️ Não foi possível obter dados do Supabase. Mantendo local.');
+    }
   };
 
   const handleExportJSON = () => {
@@ -216,9 +244,38 @@ export default function AdminAvisos({ data, onSaveData, onClose, onSimulateAlert
 
           {activeTab === 'cardapio' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <p style={{ fontSize: '0.9rem', color: '#475569' }}>
-                Edite os pratos principais do almoço e lanches da semana para o Ensino Fundamental:
-              </p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F1F5F9', padding: '12px 16px', borderRadius: '12px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <p style={{ fontSize: '0.9rem', color: '#1E293B', fontWeight: 700, margin: 0 }}>
+                    Sincronização de Cardápio com Supabase
+                  </p>
+                  <p style={{ fontSize: '0.78rem', color: '#64748B', margin: 0 }}>
+                    Edite os pratos ou importe/exporte diretamente do banco de dados remoto Supabase:
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={handleFetchSupabase}
+                    disabled={isSyncing}
+                    style={{ background: '#0284C7', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.82rem' }}
+                  >
+                    <CloudDownload size={16} /> Baixar do Supabase
+                  </button>
+                  <button
+                    onClick={handleUploadSupabase}
+                    disabled={isSyncing}
+                    style={{ background: '#16A34A', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.82rem' }}
+                  >
+                    <CloudUpload size={16} /> Importar / Enviar ao Supabase
+                  </button>
+                </div>
+              </div>
+
+              {supabaseStatus && (
+                <div style={{ padding: '10px 14px', borderRadius: '8px', background: supabaseStatus.includes('✅') ? '#DCFCE7' : supabaseStatus.includes('❌') ? '#FEE2E2' : '#E0F2FE', color: supabaseStatus.includes('✅') ? '#15803D' : supabaseStatus.includes('❌') ? '#B91C1C' : '#0369A1', fontSize: '0.85rem', fontWeight: 700 }}>
+                  {supabaseStatus}
+                </div>
+              )}
               {['segunda', 'terca', 'quarta', 'quinta', 'sexta'].map((dia) => (
                 <div key={dia} style={{ background: '#F8FAFC', padding: '12px 16px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
                   <h4 style={{ textTransform: 'capitalize', fontWeight: 800, color: 'var(--sesi-red)', marginBottom: '8px' }}>
