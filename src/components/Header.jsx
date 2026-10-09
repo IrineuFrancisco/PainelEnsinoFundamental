@@ -21,7 +21,7 @@ export default function Header({
         </div>
 
         <div className="mascot-head-container">
-          <img src="/images/Mascote.png" alt="Mascote SESI" className="mascot-head-img animate-float" />
+          <img src="./images/Mascote.png" alt="Mascote SESI" className="mascot-head-img animate-float" />
           <div className="header-title-text">
             <h1>Ensino Fundamental</h1>
             <p>Painel Interativo de Sinalização</p>

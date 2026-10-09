@@ -20,9 +20,9 @@ export function getAlertDetails(keyOrTitle, customLabel = null, displayTime = nu
       titulo: 'Alerta bom dia',
       label: 'BOM DIA!',
       displayTime: displayTime || '7:00',
-      audio: '/sons/bom dia.mp3',
-      cropImg: '/images/crop_bom_dia.png',
-      fullImg: '/images/crop_bom_dia.png'
+      audio: './sons/bom dia.mp3',
+      cropImg: './images/crop_bom_dia.png',
+      fullImg: './images/crop_bom_dia.png'
     };
   }
 
@@ -32,9 +32,9 @@ export function getAlertDetails(keyOrTitle, customLabel = null, displayTime = nu
       titulo: 'Alerta café da manhã',
       label: 'CAFÉ DA MANHÃ',
       displayTime: displayTime || '7:50',
-      audio: '/sons/comer comer.mp3',
-      cropImg: '/images/crop_cafe_manha.png',
-      fullImg: '/images/Alerta café da manhã.png'
+      audio: './sons/comer comer.mp3',
+      cropImg: './images/crop_cafe_manha.png',
+      fullImg: './images/Alerta café da manhã.png'
     };
   }
 
@@ -45,8 +45,8 @@ export function getAlertDetails(keyOrTitle, customLabel = null, displayTime = nu
       label: 'FIM DA 2º AULA',
       displayTime: displayTime || '9:00',
       audio: null,
-      cropImg: '/images/crop_segunda_aula.png',
-      fullImg: '/images/Alerta segunda aula.png'
+      cropImg: './images/crop_segunda_aula.png',
+      fullImg: './images/Alerta segunda aula.png'
     };
   }
 
@@ -56,9 +56,9 @@ export function getAlertDetails(keyOrTitle, customLabel = null, displayTime = nu
       titulo: 'Alerta almoço',
       label: 'ALMOÇO',
       displayTime: displayTime || '10:40',
-      audio: '/sons/taNaHoraDoPaPa.mp3',
-      cropImg: '/images/crop_almoco.png',
-      fullImg: '/images/Alerta almoço.png'
+      audio: './sons/taNaHoraDoPaPa.mp3',
+      cropImg: './images/crop_almoco.png',
+      fullImg: './images/Alerta almoço.png'
     };
   }
 
@@ -68,9 +68,9 @@ export function getAlertDetails(keyOrTitle, customLabel = null, displayTime = nu
       titulo: 'Alerta café da tarde',
       label: 'CAFÉ DA TARDE',
       displayTime: displayTime || '14:00',
-      audio: '/sons/comer comer.mp3',
-      cropImg: '/images/crop_cafe_tarde.png',
-      fullImg: '/images/Alerta café da tarde.png'
+      audio: './sons/comer comer.mp3',
+      cropImg: './images/crop_cafe_tarde.png',
+      fullImg: './images/Alerta café da tarde.png'
     };
   }
 
@@ -80,9 +80,9 @@ export function getAlertDetails(keyOrTitle, customLabel = null, displayTime = nu
       titulo: 'Alerta saida',
       label: 'HORA DA SAÍDA',
       displayTime: displayTime || '16:00',
-      audio: '/sons/tchau.mp3',
-      cropImg: '/images/crop_saida.png',
-      fullImg: '/images/Alerta saida.png'
+      audio: './sons/tchau.mp3',
+      cropImg: './images/crop_saida.png',
+      fullImg: './images/Alerta saida.png'
     };
   }
 
@@ -92,8 +92,8 @@ export function getAlertDetails(keyOrTitle, customLabel = null, displayTime = nu
     label: customLabel || 'ALERTA ESCOLAR',
     displayTime: displayTime || '00:00',
     audio: null,
-    cropImg: '/images/crop_segunda_aula.png',
-    fullImg: '/images/Alerta segunda aula.png'
+    cropImg: './images/crop_segunda_aula.png',
+    fullImg: './images/Alerta segunda aula.png'
   };
 }
 
@@ -139,16 +139,31 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  // 3. Smart TV Kiosk Mode Resilience (Screen WakeLock + Audio Autoplay Unlock + 03:00 AM Refresh)
+  // 3. Smart TV Kiosk Mode Resilience (Screen WakeLock + Fully Kiosk API + Audio Autoplay Unlock + 03:00 AM Refresh)
   useEffect(() => {
     let wakeLock = null;
+
+    // Integramos a API nativa do Fully Kiosk Browser se disponível no Android TV
+    if (typeof window.fully !== 'undefined' && window.fully) {
+      try {
+        if (typeof window.fully.keepScreenOn === 'function') window.fully.keepScreenOn(true);
+        if (typeof window.fully.turnScreenOn === 'function') window.fully.turnScreenOn();
+        if (typeof window.fully.hideNavigationBar === 'function') window.fully.hideNavigationBar();
+        if (typeof window.fully.hideStatusBar === 'function') window.fully.hideStatusBar();
+        console.log('[FullyKiosk] API nativa acionada com sucesso!');
+      } catch (e) {
+        console.warn('[FullyKiosk] Aviso ao aplicar comandos nativos:', e);
+      }
+    }
+
+    // HTML5 Screen WakeLock API com proteções contra exceções não tratadas
     async function requestWakeLock() {
       try {
-        if ('wakeLock' in navigator) {
+        if ('wakeLock' in navigator && navigator.wakeLock && typeof navigator.wakeLock.request === 'function') {
           wakeLock = await navigator.wakeLock.request('screen');
         }
       } catch (err) {
-        console.log('WakeLock indisponível:', err);
+        console.log('WakeLock HTML5 indisponível no navegador:', err);
       }
     }
     requestWakeLock();
@@ -156,10 +171,12 @@ export default function App() {
     // Auto unlock audio on any touch/click/remote key press
     const unlockAudio = () => {
       try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (AudioContext) {
-          const dummyCtx = new AudioContext();
-          dummyCtx.resume();
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          const dummyCtx = new AudioCtx();
+          if (dummyCtx.state === 'suspended') {
+            dummyCtx.resume();
+          }
         }
       } catch (e) {}
     };
@@ -168,7 +185,9 @@ export default function App() {
     window.addEventListener('touchstart', unlockAudio, { once: true });
 
     return () => {
-      if (wakeLock) wakeLock.release().catch(() => {});
+      if (wakeLock && typeof wakeLock.release === 'function') {
+        wakeLock.release().catch(() => {});
+      }
       window.removeEventListener('click', unlockAudio);
       window.removeEventListener('keydown', unlockAudio);
       window.removeEventListener('touchstart', unlockAudio);
@@ -203,7 +222,7 @@ export default function App() {
 
       // Memory flush & clean reload at 03:00 AM for long-running Smart TVs
       if (now.getHours() === 3 && now.getMinutes() === 0 && now.getSeconds() === 0) {
-        window.location.reload(true);
+        window.location.reload();
         return;
       }
 
@@ -271,7 +290,7 @@ export default function App() {
     return (
       <div className="tv-frame-container">
         <div className="tv-canvas" style={{ alignItems: 'center', justifyContent: 'center' }}>
-          <img src="/images/Mascote.png" alt="Mascote" style={{ width: '100px', marginBottom: '16px' }} />
+          <img src="./images/Mascote.png" alt="Mascote" style={{ width: '100px', marginBottom: '16px' }} />
           <h2 style={{ fontFamily: 'MomoTrust, sans-serif', fontSize: '2rem' }}>Carregando Painel SESI...</h2>
         </div>
       </div>
@@ -287,7 +306,7 @@ export default function App() {
         {/* Top Header Row matching Tela principal.png */}
         <header className="header-row">
           <div className="sesi-logo-block">
-            <img src="/images/Sesi-SP.jpg" alt="Logo SESI" className="sesi-logo-img" />
+            <img src="./images/Sesi-SP.jpg" alt="Logo SESI" className="sesi-logo-img" />
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
@@ -442,7 +461,7 @@ export default function App() {
 
             <div className="mascote-container-bottom">
               <img
-                src="/images/Mascote.png"
+                src="./images/Mascote.png"
                 alt="Mascote SESI"
                 className="mascote-img-full"
               />
@@ -456,7 +475,7 @@ export default function App() {
             <div className="alert-canvas">
               <header className="header-row">
                 <div className="sesi-logo-block">
-                  <img src="/images/Sesi-SP.jpg" alt="Logo SESI" className="sesi-logo-img" />
+                  <img src="./images/Sesi-SP.jpg" alt="Logo SESI" className="sesi-logo-img" />
                 </div>
                 <div className="date-time-pill">
                   <span className="date-pill-text">

@@ -13,10 +13,19 @@ let lastSyncTime = null;
 export async function syncTimeWithServer() {
   const startTime = Date.now();
   try {
-    // Usamos parâmetro anti-cache _t=timestamp
-    const response = await fetch(`/avisos.json?_t=${startTime}`, { method: 'HEAD' });
+    // Usamos parâmetro anti-cache _t=timestamp e fallback para GET se HEAD não for suportado pelo webserver
+    let response;
+    try {
+      response = await fetch(`./avisos.json?_t=${startTime}`, { method: 'HEAD' });
+      if (!response.ok) {
+        response = await fetch(`./avisos.json?_t=${startTime}`, { method: 'GET' });
+      }
+    } catch (e) {
+      response = await fetch(`./avisos.json?_t=${startTime}`, { method: 'GET' });
+    }
+
     const endTime = Date.now();
-    const serverDateHeader = response.headers.get('date');
+    const serverDateHeader = response.headers ? response.headers.get('date') : null;
 
     if (serverDateHeader) {
       const serverTimeMs = new Date(serverDateHeader).getTime();
