@@ -1,13 +1,43 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>painelensinofundamental</title>
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Painel Ensino Fundamental - SESI</title>
+    
+    <!-- Polyfill globalThis para WebViews mais antigas de Smart TV (Android 7/8/9) -->
+    <script>
+      if (typeof globalThis === 'undefined') {
+        (function() {
+          if (typeof self !== 'undefined') { self.globalThis = self; }
+          else if (typeof window !== 'undefined') { window.globalThis = window; }
+          else if (typeof global !== 'undefined') { global.globalThis = global; }
+          else { Object.defineProperty(Object.prototype, 'globalThis', { get: function() { return this; }, configurable: true }); }
+        })();
+      }
+    </script>
+
+    <!-- Diagnóstico visual de erro para Fully Kiosk / Smart TV -->
+    <script>
+      window.onerror = function(msg, url, lineNo, columnNo, error) {
+        console.error('TV Erro:', msg, 'em', url, 'linha:', lineNo);
+        var errDiv = document.getElementById('tv-error-display');
+        if (errDiv) {
+          errDiv.style.display = 'block';
+          errDiv.innerHTML = '<b>⚠️ Erro de execução na TV:</b><br/>' + msg + '<br/><small>' + (url || '') + ':' + lineNo + '</small>';
+        }
+        return false;
+      };
+      window.onunhandledrejection = function(event) {
+        console.error('TV Promise Rejection:', event.reason);
+      };
+    </script>
   </head>
   <body>
+    <div id="tv-error-display" style="display:none; position:fixed; top:10px; left:10px; right:10px; z-index:99999; background:#e30613; color:#fff; padding:16px; border-radius:12px; font-family:sans-serif; font-size:14px; box-shadow:0 4px 20px rgba(0,0,0,0.5);"></div>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="./src/main.jsx"></script>
   </body>
 </html>
+

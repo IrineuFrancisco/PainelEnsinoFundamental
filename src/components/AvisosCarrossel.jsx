@@ -203,7 +203,7 @@ export default function AvisosCarrossel({
           padding: '10px 16px', 
           borderRadius: '16px' 
         }}>
-          <img src="/images/Mascote.png" alt="Mascote" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+          <img src="./images/Mascote.png" alt="Mascote" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
           <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>
             Dica do Mascote: Respeite os colegas e mantenha os espaços da escola sempre limpos!
           </span>

@@ -13,14 +13,14 @@ export default function AlertaSonoro({ currentAlert, onCloseAlert }) {
   if (!currentAlert) return null;
 
   const imageMap = {
-    'Alerta café da manhã': '/images/Alerta café da manhã.png',
-    'Alerta almoço': '/images/Alerta almoço.png',
-    'Alerta café da tarde': '/images/Alerta café da tarde.png',
-    'Alerta segunda aula': '/images/Alerta segunda aula.png',
-    'Alerta saida': '/images/Alerta saida.png'
+    'Alerta café da manhã': './images/Alerta café da manhã.png',
+    'Alerta almoço': './images/Alerta almoço.png',
+    'Alerta café da tarde': './images/Alerta café da tarde.png',
+    'Alerta segunda aula': './images/Alerta segunda aula.png',
+    'Alerta saida': './images/Alerta saida.png'
   };
 
-  const alertImg = imageMap[currentAlert.titulo] || '/images/Tela principal.png';
+  const alertImg = imageMap[currentAlert.titulo] || './images/Tela principal.png';
 
   return (
     <div className="event-alert-overlay">

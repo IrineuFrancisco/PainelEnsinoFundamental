@@ -10,21 +10,25 @@ const LOCAL_STORAGE_KEY = 'painel_fundamental_data_v1';
 export async function loadPanelData() {
   const timestamp = Date.now();
   try {
-    const response = await fetch(`/avisos.json?_t=${timestamp}`, { cache: 'no-store' });
+    const response = await fetch(`./avisos.json?_t=${timestamp}`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     // Cache data in localStorage for 100% offline fallback
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+    } catch (e) {
+      console.warn('[OfflineFirst] LocalStorage inacessível:', e);
+    }
     return { data, source: 'network' };
   } catch (err) {
     console.warn('[OfflineFirst] Erro ao carregar do servidor/JSON local. Recorrendo ao localStorage:', err);
-    const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (cached) {
-      try {
+    try {
+      const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (cached) {
         return { data: JSON.parse(cached), source: 'cache' };
-      } catch (e) {
-        console.error('Erro ao analisar cache local:', e);
       }
+    } catch (e) {
+      console.error('Erro ao analisar cache local:', e);
     }
     return { data: null, source: 'error' };
   }
