@@ -5,7 +5,7 @@ import AdminAvisos from './components/AdminAvisos';
 
 import { syncTimeWithServer, getSyncedDate, formatDateExtenso, formatTimeBR, getDiaSemanaChave } from './utils/timeSync';
 import { loadPanelData, playChimeWithFadeIn, playAlertAudio, stopAlertAudio } from './utils/mediaHelpers';
-import { fetchCardapioSupabase, fetchAvisosSupabase, subscribeToSupabaseChanges } from './utils/supabaseClient';
+import { fetchCardapioSupabase } from './utils/supabaseClient';
 import { Volume2, Settings, X, Bell, RefreshCw, BookOpen } from 'lucide-react';
 
 import './App.css';
@@ -149,31 +149,20 @@ export default function App() {
     fetchData();
   }, []);
 
-  // Assinatura em tempo real (Supabase Realtime)
+  // Polling periódico para atualizar cardápio do Supabase (a cada 60 segundos)
   useEffect(() => {
     if (!panelData) return;
 
-    const unsubscribe = subscribeToSupabaseChanges({
-      onCardapioChange: async () => {
-        console.log('[Realtime] Notificação de alteração no cardápio recebida!');
-        const supRes = await fetchCardapioSupabase(panelData);
-        if (supRes.success && supRes.data) {
-          setPanelData((prev) => ({ ...prev, cardapio: supRes.data }));
-        }
-      },
-      onAvisosChange: async () => {
-        console.log('[Realtime] Notificação de alteração em avisos recebida!');
-        const supAvisos = await fetchAvisosSupabase(panelData);
-        if (supAvisos.success && supAvisos.data) {
-          setPanelData((prev) => ({ ...prev, avisos: supAvisos.data }));
-        }
+    const interval = setInterval(async () => {
+      console.log('[Polling] Verificando atualizações de cardápio no Supabase...');
+      const supRes = await fetchCardapioSupabase(panelData);
+      if (supRes.success && supRes.data) {
+        setPanelData((prev) => ({ ...prev, cardapio: supRes.data }));
       }
-    });
+    }, 60000);
 
-    return () => {
-      if (typeof unsubscribe === 'function') unsubscribe();
-    };
-  }, [panelData]);
+    return () => clearInterval(interval);
+  }, []);
 
   // Rotação dos avisos ativos a cada 12 segundos no card Lembrete
   useEffect(() => {
