@@ -5,7 +5,7 @@ import AdminAvisos from './components/AdminAvisos';
 
 import { syncTimeWithServer, getSyncedDate, formatDateExtenso, formatTimeBR, getDiaSemanaChave } from './utils/timeSync';
 import { loadPanelData, playChimeWithFadeIn, playAlertAudio, stopAlertAudio } from './utils/mediaHelpers';
-import { fetchCardapioSupabase } from './utils/supabaseClient';
+import { fetchCardapioSupabase, fetchAvisosSupabase } from './utils/supabaseClient';
 import { Volume2, Settings, X, Bell, RefreshCw, BookOpen } from 'lucide-react';
 
 import './App.css';

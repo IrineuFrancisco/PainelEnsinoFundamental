@@ -135,6 +135,45 @@ export async function fetchCardapioSupabase(currentPanelData) {
   }
   return { success: false, data: currentPanelData?.cardapio };
 }
+
+/**
+ * Busca avisos ativos no Supabase (tipo != 'cardapio').
+ * Mantém os avisos locais se offline ou em caso de falha.
+ */
+export async function fetchAvisosSupabase(currentPanelData) {
+  try {
+    console.log('[Supabase] Consultando avisos ativos...');
+    const { data, error } = await supabase
+      .from('avisos')
+      .select('*')
+      .neq('tipo', 'cardapio')
+      .eq('ativo', true)
+      .order('ordem', { ascending: true });
+
+    if (!error && data && data.length > 0) {
+      const avisosFormatados = data.map((item) => ({
+        id: item.id,
+        titulo: item.titulo || '',
+        mensagem: item.mensagem || '',
+        categoria: item.tipo || 'Informativo',
+        cor: item.cor || '#20B2AA',
+        duracao: item.duracao || 8,
+        icone: item.icone || 'sparkles',
+        ativo: item.ativo,
+        imagem_url: item.imagem_url,
+        video_url: item.video_url,
+        tipo_midia: item.tipo_midia || (item.imagem_url ? 'imagem' : 'nenhum')
+      }));
+
+      console.log(`[Supabase] ${avisosFormatados.length} avisos sincronizados com sucesso!`);
+      return { success: true, data: avisosFormatados };
+    }
+  } catch (err) {
+    console.warn('[Supabase] Erro ao sincronizar avisos:', err);
+  }
+  return { success: false, data: currentPanelData?.avisos };
+}
+
 /**
  * Envia/importa as informações do Cardápio local para a tabela 'avisos' no Supabase.
  */
